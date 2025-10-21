@@ -1,6 +1,6 @@
 package ${package}.jei_recipes;
 
-@EventBusSubscriber(modid = "${modid}", bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber
 public class EmptyIngredient implements ICustomIngredient {
     public static final EmptyIngredient INSTANCE = new EmptyIngredient();
 

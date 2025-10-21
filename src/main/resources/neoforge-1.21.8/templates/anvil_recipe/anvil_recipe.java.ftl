@@ -10,7 +10,7 @@ public class ${name}AnvilRecipe {
         if ((event.getLeft().getItem() == ${mappedMCItemToItem(data.leftitem)}) && (event.getRight().getItem() == ${mappedMCItemToItem(data.rightitem)})) {
             if ((event.getLeft().getCount() == 1) && (event.getRight().getCount() >= ${data.rightcost})) {
                 event.setMaterialCost(${data.rightcost});
-                event.setCost(${data.xpcost});
+                event.setXpCost(${data.xpcost});
                 event.setOutput(${mappedMCItemToItemStackCode(data.output)});
             }
         }

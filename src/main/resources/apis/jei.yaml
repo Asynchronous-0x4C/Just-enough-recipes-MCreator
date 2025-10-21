@@ -24,7 +24,7 @@ neoforge-1.21.1:
   update_files:
     - ~
 
-neoforge-1.21.4:
+neoforge-1.21.8:
   gradle: |
     repositories {
       maven {
@@ -42,9 +42,9 @@ neoforge-1.21.4:
     }
     
     dependencies {
-        compileOnly("mezz.jei:jei-1.21.4-common-api:20.0.0.4")
-        compileOnly("mezz.jei:jei-1.21.4-neoforge-api:20.0.0.4")
-        runtimeOnly("mezz.jei:jei-1.21.4-neoforge:20.0.0.4")
+        compileOnly("mezz.jei:jei-1.21.8-common-api:24.2.0.6")
+        compileOnly("mezz.jei:jei-1.21.8-neoforge-api:24.2.0.6")
+        runtimeOnly("mezz.jei:jei-1.21.8-neoforge:24.2.0.6")
     }
   update_files:
     - ~
