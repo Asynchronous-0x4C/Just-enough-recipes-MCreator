@@ -45,7 +45,7 @@ public record ${name}Recipe(List<ItemStack> outputs, List<Ingredient> recipeItem
     }
 
     public List<ItemStack> getResultItems() {
-        return List.copyOf(outputs);
+        return outputs;
     }
 
     @Override

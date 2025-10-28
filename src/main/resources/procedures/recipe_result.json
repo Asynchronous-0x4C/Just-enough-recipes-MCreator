@@ -1,6 +1,6 @@
 {
-  "output": "MCItem",
-  "colour": 350,
+  "output": "RecipeResult",
+  "colour": "#899796",
   "mcreator": {
     "toolbox_id": "just_enough_recipes"
   }

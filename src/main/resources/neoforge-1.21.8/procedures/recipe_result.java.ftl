@@ -1,1 +1,1 @@
-/*@ItemStack*/reciperesult
+reciperesult

@@ -13,7 +13,7 @@
             if (!ingredients.get(${entry?index}).test(${mappedMCItemToItemStackCode(entry)}))
                 continue;
         </#list>
-        ItemStack reciperesult = recipe.getResultItem(null);
+        List<ItemStack> reciperesult = recipe.getResultItems();
         ${statement$foreach}
         break;
     }

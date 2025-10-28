@@ -2,13 +2,11 @@
   "args0": [
     {
       "type": "input_value",
-      "name": "_placeholder",
-      "check": "MCItem"
-    },
-    {
-      "type": "input_value",
       "name": "_placeholder2",
       "check": "Number"
+    },
+    {
+      "type": "input_dummy"
     },
     {
       "type": "input_statement",
@@ -25,7 +23,6 @@
   "mcreator": {
     "toolbox_id": "just_enough_recipes",
     "toolbox_init": [
-      "<value name=\"_placeholder\"><block deletable=\"false\" movable=\"false\" enabled=\"false\" type=\"recipe_result\"></block></value>",
       "<value name=\"_placeholder2\"><block deletable=\"false\" movable=\"false\" enabled=\"false\" type=\"number_iterator\"></block></value>"
     ],
     "statements": [

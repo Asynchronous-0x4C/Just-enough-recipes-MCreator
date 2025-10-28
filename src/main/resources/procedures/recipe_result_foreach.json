@@ -9,7 +9,7 @@
     {
       "type": "input_value",
       "name": "_placeholder",
-      "check": "MCItem"
+      "check": "RecipeResult"
     },
     {
       "type": "input_statement",

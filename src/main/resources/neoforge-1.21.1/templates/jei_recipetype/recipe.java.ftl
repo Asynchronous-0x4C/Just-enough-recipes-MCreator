@@ -67,7 +67,7 @@ public class ${name}Recipe implements Recipe<RecipeInput> {
     }
 
     public List<ItemStack> getResultItems() {
-        return List.copyOf(output);
+        return output;
     }
 
     @Override
