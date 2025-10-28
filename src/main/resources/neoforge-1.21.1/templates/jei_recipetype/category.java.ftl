@@ -49,6 +49,11 @@ public class ${name}RecipeCategory implements IRecipeCategory<${name}Recipe> {
         <#if data.enableIntList>
             List<ItemStack> stacks = new ArrayList<>();
         </#if>
+        List<ItemStack> recipeOutputs = recipe.getResultItems();
+        List<ItemStack> actualOutputs = NonNullList.withSize(${data.getResultCount()}, ItemStack.EMPTY);
+        for (int i = 0; i < recipeOutputs.size(); i++) {
+            actualOutputs.set(i, recipeOutputs.get(i));
+        }
         <#list data.slotList as slot>
             <#if slot.type == "INPUT">
                 <#if data.enableIntList>
@@ -60,7 +65,7 @@ public class ${name}RecipeCategory implements IRecipeCategory<${name}Recipe> {
                     builder.addSlot(RecipeIngredientRole.INPUT, ${slot.x}, ${slot.y}).addIngredients(recipe.getIngredients().get(${slot.slotid}));
                 </#if>
             <#else>
-                builder.addSlot(RecipeIngredientRole.OUTPUT, ${slot.x}, ${slot.y}).addItemStack(recipe.getResultItem(null));
+                builder.addSlot(RecipeIngredientRole.OUTPUT, ${slot.x}, ${slot.y}).addItemStack(actualOutputs.get(${slot.slotid}));
             </#if>
         </#list>
     }

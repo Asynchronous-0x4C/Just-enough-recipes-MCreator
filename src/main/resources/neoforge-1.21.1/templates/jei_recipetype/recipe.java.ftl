@@ -5,7 +5,7 @@ package ${package}.jei_recipes;
 import javax.annotation.Nullable;
 
 public class ${name}Recipe implements Recipe<RecipeInput> {
-    private final ItemStack output;
+    private final List<ItemStack> output;
     private final NonNullList<Ingredient> recipeItems;
     <#if data.enableIntList>
     private final List<Integer> integers;
@@ -14,7 +14,7 @@ public class ${name}Recipe implements Recipe<RecipeInput> {
     private final List<String> strings;
     </#if>
 
-    public ${name}Recipe(ItemStack output, NonNullList<Ingredient> recipeItems<#if data.enableIntList>, List<Integer> integers</#if><#if data.enableStringList>, List<String> strings</#if>) {
+    public ${name}Recipe(List<ItemStack> output, NonNullList<Ingredient> recipeItems<#if data.enableIntList>, List<Integer> integers</#if><#if data.enableStringList>, List<String> strings</#if>) {
         this.output = output;
         this.recipeItems = recipeItems;
         <#if data.enableIntList>
@@ -53,7 +53,7 @@ public class ${name}Recipe implements Recipe<RecipeInput> {
 
     @Override
     public ItemStack assemble(RecipeInput input, HolderLookup.Provider holder) {
-        return output;
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -63,7 +63,11 @@ public class ${name}Recipe implements Recipe<RecipeInput> {
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return output.copy();
+        return ItemStack.EMPTY;
+    }
+
+    public List<ItemStack> getResultItems() {
+        return List.copyOf(output);
     }
 
     @Override
@@ -85,7 +89,7 @@ public class ${name}Recipe implements Recipe<RecipeInput> {
         public static final Serializer INSTANCE = new Serializer();
         private static final MapCodec<${name}Recipe> CODEC = RecordCodecBuilder.mapCodec(
             builder -> builder.group(
-                        ItemStack.STRICT_CODEC.fieldOf("output").forGetter(recipe -> recipe.output),
+                        ItemStack.OPTIONAL_CODEC.listOf().fieldOf("outputs").forGetter(recipe -> recipe.output),
                         Ingredient.CODEC_NONEMPTY
                             .listOf()
                             .fieldOf("ingredients")
@@ -126,6 +130,8 @@ public class ${name}Recipe implements Recipe<RecipeInput> {
         private static ${name}Recipe fromNetwork(RegistryFriendlyByteBuf buf) {
             NonNullList<Ingredient> inputs = NonNullList.withSize(buf.readVarInt(), Ingredient.EMPTY);
             inputs.replaceAll(ingredients -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
+            List<ItemStack> outputs = NonNullList.withSize(buf.readVarInt(), ItemStack.EMPTY);
+            outputs.replaceAll(results -> ItemStack.STREAM_CODEC.decode(buf));
             <#if data.enableIntList>
             List<Integer> numbers = NonNullList.withSize(buf.readVarInt(), 0);
             numbers.replaceAll(num -> buf.readVarInt());
@@ -134,7 +140,7 @@ public class ${name}Recipe implements Recipe<RecipeInput> {
             List<String> strings = NonNullList.withSize(buf.readVarInt(), "");
             strings.replaceAll(string -> buf.readUtf());
             </#if>
-            return new ${name}Recipe(ItemStack.STREAM_CODEC.decode(buf), inputs<#if data.enableIntList>, numbers</#if><#if data.enableStringList>, strings</#if>);
+            return new ${name}Recipe(outputs, inputs<#if data.enableIntList>, numbers</#if><#if data.enableStringList>, strings</#if>);
         }
 
         private static void toNetwork(RegistryFriendlyByteBuf buf, ${name}Recipe recipe) {
@@ -144,6 +150,10 @@ public class ${name}Recipe implements Recipe<RecipeInput> {
                     Ingredient.CONTENTS_STREAM_CODEC.encode(buf, Ingredient.EMPTY);
                 else
                     Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ing);
+            }
+            buf.writeVarInt(recipe.getResultItems().size());
+            for (ItemStack itemstack : recipe.getResultItems()) {
+                ItemStack.STREAM_CODEC.encode(buf, itemstack);
             }
             <#if data.enableIntList>
             buf.writeVarInt(recipe.integers().size());
@@ -157,7 +167,6 @@ public class ${name}Recipe implements Recipe<RecipeInput> {
             	buf.writeUtf(string);
             }
             </#if>
-            ItemStack.STREAM_CODEC.encode(buf, recipe.getResultItem(null));
         }
     }
 

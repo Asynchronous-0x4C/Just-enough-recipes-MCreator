@@ -4,9 +4,9 @@ package ${package}.jei_recipes;
 
 import javax.annotation.Nullable;
 
-public record ${name}Recipe(ItemStack output, List<Ingredient> recipeItems<#if data.enableIntList>, List<Integer> integers</#if><#if data.enableStringList>, List<String> strings</#if>) implements Recipe<RecipeInput> {
-    public ${name}Recipe(ItemStack output, List<Ingredient> recipeItems<#if data.enableIntList>, List<Integer> integers</#if><#if data.enableStringList>, List<String> strings</#if>) {
-        this.output = output;
+public record ${name}Recipe(List<ItemStack> outputs, List<Ingredient> recipeItems<#if data.enableIntList>, List<Integer> integers</#if><#if data.enableStringList>, List<String> strings</#if>) implements Recipe<RecipeInput> {
+    public ${name}Recipe(List<ItemStack> outputs, List<Ingredient> recipeItems<#if data.enableIntList>, List<Integer> integers</#if><#if data.enableStringList>, List<String> strings</#if>) {
+        this.outputs = outputs;
         this.recipeItems = recipeItems;
         <#if data.enableIntList>
             this.integers = integers;
@@ -41,11 +41,11 @@ public record ${name}Recipe(ItemStack output, List<Ingredient> recipeItems<#if d
 
     @Override
     public ItemStack assemble(RecipeInput input, HolderLookup.Provider holder) {
-        return output;
+        return ItemStack.EMPTY;
     }
 
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return output.copy();
+    public List<ItemStack> getResultItems() {
+        return List.copyOf(outputs);
     }
 
     @Override
@@ -67,7 +67,7 @@ public record ${name}Recipe(ItemStack output, List<Ingredient> recipeItems<#if d
         public static final Serializer INSTANCE = new Serializer();
         private static final MapCodec<${name}Recipe> CODEC = RecordCodecBuilder.mapCodec(
             builder -> builder.group(
-                        ItemStack.STRICT_CODEC.fieldOf("output").forGetter(${name}Recipe::output),
+                        ItemStack.OPTIONAL_CODEC.listOf().fieldOf("outputs").forGetter(${name}Recipe::outputs),
                         Ingredient.CODEC.listOf().fieldOf("ingredients").forGetter(${name}Recipe::recipeItems)<#if data.enableIntList>,
                         Codec.INT.listOf().fieldOf("integers").forGetter(${name}Recipe::integers)</#if><#if data.enableStringList>,
                         Codec.STRING.listOf().fieldOf("strings").forGetter(${name}Recipe::strings)</#if>
@@ -89,6 +89,8 @@ public record ${name}Recipe(ItemStack output, List<Ingredient> recipeItems<#if d
         private static ${name}Recipe fromNetwork(RegistryFriendlyByteBuf buf) {
             List<Ingredient> inputs = NonNullList.withSize(buf.readVarInt(), EmptyIngredient.create());
             inputs.replaceAll(ingredients -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
+            List<ItemStack> outputs = NonNullList.withSize(buf.readVarInt(), ItemStack.EMPTY);
+            outputs.replaceAll(results -> ItemStack.STREAM_CODEC.decode(buf));
             <#if data.enableIntList>
             List<Integer> numbers = NonNullList.withSize(buf.readVarInt(), 0);
             numbers.replaceAll(num -> buf.readVarInt());
@@ -97,7 +99,7 @@ public record ${name}Recipe(ItemStack output, List<Ingredient> recipeItems<#if d
             List<String> strings = NonNullList.withSize(buf.readVarInt(), "");
             strings.replaceAll(string -> buf.readUtf());
             </#if>
-            return new ${name}Recipe(ItemStack.STREAM_CODEC.decode(buf), inputs<#if data.enableIntList>, numbers</#if><#if data.enableStringList>, strings</#if>);
+            return new ${name}Recipe(outputs, inputs<#if data.enableIntList>, numbers</#if><#if data.enableStringList>, strings</#if>);
         }
 
         private static void toNetwork(RegistryFriendlyByteBuf buf, ${name}Recipe recipe) {
@@ -107,6 +109,10 @@ public record ${name}Recipe(ItemStack output, List<Ingredient> recipeItems<#if d
                     Ingredient.CONTENTS_STREAM_CODEC.encode(buf, EmptyIngredient.create());
                 else
                     Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ing);
+            }
+            buf.writeVarInt(recipe.getResultItems().size());
+            for (ItemStack itemstack : recipe.getResultItems()) {
+                ItemStack.STREAM_CODEC.encode(buf, itemstack);
             }
             <#if data.enableIntList>
             buf.writeVarInt(recipe.integers().size());
@@ -120,7 +126,6 @@ public record ${name}Recipe(ItemStack output, List<Ingredient> recipeItems<#if d
             	buf.writeUtf(string);
             }
             </#if>
-            ItemStack.STREAM_CODEC.encode(buf, recipe.getResultItem(null));
         }
     }
 

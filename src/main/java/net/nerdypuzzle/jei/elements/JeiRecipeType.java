@@ -46,6 +46,35 @@ public class JeiRecipeType extends GeneratableElement {
                 boolean isUnique = true;
                 for (int j = 0; j < i; j++) {
                     JeiSlotListEntry previousEntry = slotList.get(j);
+                    if (previousEntry.type.equals("OUTPUT"))
+                        continue;
+                    if (entry.slotid == previousEntry.slotid) {
+                        isUnique = false;
+                        break;
+                    }
+                }
+
+                if (isUnique) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    public int getResultCount() {
+        int count = 0;
+
+        for (int i = 0; i < slotList.size(); i++) {
+            JeiSlotListEntry entry = slotList.get(i);
+
+            if (entry.type.equals("OUTPUT")) {
+                boolean isUnique = true;
+                for (int j = 0; j < i; j++) {
+                    JeiSlotListEntry previousEntry = slotList.get(j);
+                    if (previousEntry.type.equals("INPUT"))
+                        continue;
                     if (entry.slotid == previousEntry.slotid) {
                         isUnique = false;
                         break;

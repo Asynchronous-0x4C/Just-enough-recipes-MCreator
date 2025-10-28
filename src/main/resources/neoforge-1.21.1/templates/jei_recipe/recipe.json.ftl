@@ -1,4 +1,5 @@
 <#include "../mcitems.ftl">
+<#assign recipeElement = w.getWorkspace().getModElementByName(data.recipetype).getGeneratableElement()>
 {
   "type": "${modid}:${data.category}",
   "ingredients": [
@@ -12,22 +13,28 @@
     </#list>
     ${items[0..(items?last_index_of(',') - 1)]}
   ],
-  <#if w.getWorkspace().getModElementByName(data.recipetype).getGeneratableElement().enableIntList>
+  <#if recipeElement.enableIntList>
     "integers": [
         <#list data.integers as integer>
             ${integer}<#sep>,
         </#list>
     ],
   </#if>
-  <#if w.getWorkspace().getModElementByName(data.recipetype).getGeneratableElement().enableStringList>
+  <#if recipeElement.enableStringList>
     "strings": [
         <#list data.strings as string>
             "${string}"<#sep>,
         </#list>
     ],
   </#if>
-  "output": {
-    ${mappedMCItemToItemObjectJSON(data.result, "id")},
-    "count": ${data.count}
-  }
+  "outputs": [
+    <#list 0..data.results?size-1 as i>
+      <#if data.results[i].getUnmappedValue() != "Blocks.AIR">
+        {
+          ${mappedMCItemToItemObjectJSON(data.results[i], "id")},
+          "count": <#if data.resultCounts[i]??>${data.resultCounts[i]}<#else>1</#if>
+        }<#sep>,
+      </#if>
+    </#list>
+  ]
 }

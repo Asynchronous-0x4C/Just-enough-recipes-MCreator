@@ -16,6 +16,7 @@ public class JeiSlotListEntry extends JSimpleListEntry<JeiRecipeType.JeiSlotList
     private final JSpinner x = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 1));
     private final JSpinner y = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 1));
     private final JSpinner slotid = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 1));
+    private final JLabel slotIdLabel = L10N.label("elementgui.jeirecipetype.slot_id", new Object[0]);
     private final Workspace workspace;
 
     public JeiSlotListEntry(MCreator mcreator, IHelpContext gui, JPanel parent, List<net.nerdypuzzle.jei.parts.JeiSlotListEntry> entryList) {
@@ -27,11 +28,15 @@ public class JeiSlotListEntry extends JSimpleListEntry<JeiRecipeType.JeiSlotList
         this.line.add(this.x);
         this.line.add(new JLabel("Y:"));
         this.line.add(this.y);
-        this.line.add(HelpUtils.wrapWithHelpButton(gui.withEntry("jei/slot_id"), L10N.label("elementgui.jeirecipetype.slot_id", new Object[0])));
+        this.line.add(HelpUtils.wrapWithHelpButton(gui.withEntry("jei/slot_id"), slotIdLabel));
         this.line.add(this.slotid);
 
-        this.type.addActionListener((e) -> {
-            slotid.setEnabled(type.getSelectedItem().equals("INPUT"));
+        this.type.addActionListener(e -> {
+            if (this.type.getSelectedItem().equals("OUTPUT")) {
+                slotIdLabel.setText(L10N.t("elementgui.jeirecipetype.output_slot_id"));
+            } else {
+                slotIdLabel.setText(L10N.t("elementgui.jeirecipetype.slot_id"));
+            }
         });
     }
 

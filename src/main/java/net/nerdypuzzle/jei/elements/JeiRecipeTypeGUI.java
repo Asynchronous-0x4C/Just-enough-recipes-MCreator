@@ -120,9 +120,7 @@ public class JeiRecipeTypeGUI extends ModElementGUI<JeiRecipeType> {
         nwPanel.setOpaque(false);
         nwPanel.add(PanelUtils.centerAndEastElement(mainPanel, advancedSubPanel));
 
-        JComponent mainEditor = PanelUtils.northAndCenterElement(HelpUtils.wrapWithHelpButton(this.withEntry("jei/slots"), L10N.label("elementgui.jeirecipetype.slots", new Object[0])), this.slotList);
-        mainEditor.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        pane1.add(PanelUtils.northAndCenterElement(PanelUtils.join(0, new Component[]{nwPanel}), mainEditor));
+        pane1.add(PanelUtils.northAndCenterElement(PanelUtils.join(0, new Component[]{nwPanel}), slotList));
 
         this.title.setValidator(new TextFieldValidator(this.title, L10N.t("elementgui.jeirecipetype.recipetype_needs_title", new Object[0])));
         this.title.enableRealtimeValidation();
