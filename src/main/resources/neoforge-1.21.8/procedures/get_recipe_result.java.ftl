@@ -15,7 +15,7 @@
                 if (!ingredients.get(${entry?index}).test(${mappedMCItemToItemStackCode(entry)}))
                     continue;
             </#list>
-            return recipe.getResultItems().get(0);
+            return recipe.getResultItems().get(0).copy();
         }
         return ItemStack.EMPTY;
     }
