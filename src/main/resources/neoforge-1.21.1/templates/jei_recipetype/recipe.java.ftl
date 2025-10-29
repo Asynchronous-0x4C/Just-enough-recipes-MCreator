@@ -10,7 +10,7 @@ public class ${name}Recipe implements Recipe<RecipeInput> {
     <#if data.enableIntList>
     private final List<Integer> integers;
     </#if>
-    <#if data.enableIntList>
+    <#if data.enableStringList>
     private final List<String> strings;
     </#if>
 

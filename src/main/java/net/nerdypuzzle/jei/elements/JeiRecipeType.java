@@ -1,15 +1,20 @@
 package net.nerdypuzzle.jei.elements;
 
 import net.mcreator.element.GeneratableElement;
+import net.mcreator.element.parts.GridSettings;
 import net.mcreator.element.parts.MItemBlock;
+import net.mcreator.element.parts.gui.GUIComponent;
+import net.mcreator.element.types.interfaces.IGUI;
 import net.mcreator.ui.workspace.resources.TextureType;
 import net.mcreator.workspace.elements.ModElement;
+import net.mcreator.workspace.references.ModElementReference;
 import net.mcreator.workspace.references.TextureReference;
+import net.nerdypuzzle.jei.parts.gui.JeiGui;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class JeiRecipeType extends GeneratableElement {
+public class JeiRecipeType extends GeneratableElement implements IGUI {
 
     @TextureReference(TextureType.SCREEN)
     public String textureSelector;
@@ -24,6 +29,15 @@ public class JeiRecipeType extends GeneratableElement {
     public String title;
     public List<JeiSlotListEntry> slotList = new ArrayList<>();
 
+    // Gui editor
+    @ModElementReference
+    @TextureReference(TextureType.SCREEN) public List<GUIComponent> components;
+
+    public GridSettings gridSettings;
+
+    public final transient int W;
+    public final transient int H;
+
     public static class JeiSlotListEntry {
         public JeiSlotListEntry() {}
 
@@ -34,7 +48,13 @@ public class JeiRecipeType extends GeneratableElement {
     }
 
 
-    public JeiRecipeType(ModElement element) { super(element); }
+    public JeiRecipeType(ModElement element) {
+        super(element);
+        this.W = JeiGui.W;
+        this.H = JeiGui.H;
+        this.gridSettings = new GridSettings();
+        this.components = new ArrayList<>();
+    }
 
     public int getIngredientCount() {
         int count = 0;
@@ -88,6 +108,10 @@ public class JeiRecipeType extends GeneratableElement {
         }
 
         return count;
+    }
+
+    @Override public List<GUIComponent> getComponents() {
+        return components;
     }
 
 }

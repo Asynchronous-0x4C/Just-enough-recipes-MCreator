@@ -6,8 +6,8 @@ package ${package}.init;
 @JeiPlugin
 public class ${JavaModName}JeiPlugin implements IModPlugin {
     <#list jeirecipetypes as type>
-        public static mezz.jei.api.recipe.RecipeType<${type.getModElement().getName()}Recipe> ${type.getModElement().getName()}_Type =
-            new mezz.jei.api.recipe.RecipeType<>(${type.getModElement().getName()}RecipeCategory.UID, ${type.getModElement().getName()}Recipe.class);
+        public static IRecipeType<${type.getModElement().getName()}Recipe> ${type.getModElement().getName()}_Type =
+            IRecipeType.create(${type.getModElement().getName()}RecipeCategory.UID, ${type.getModElement().getName()}Recipe.class);
     </#list>
 
     @Override
@@ -35,9 +35,8 @@ public class ${JavaModName}JeiPlugin implements IModPlugin {
 	public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
 	    <#list jeirecipetypes as type>
 	        <#if type.enableCraftingtable>
-	            <#list type.craftingtables as block>
-	                registration.addRecipeCatalyst(new ItemStack(${mappedMCItemToItem(block)}), ${type.getModElement().getName()}_Type);
-	            </#list>
+	            registration.addCraftingStations(${type.getModElement().getName()}_Type, VanillaTypes.ITEM_STACK,
+	                List.of(<#list type.craftingtables as block>new ItemStack(${mappedMCItemToItem(block)})<#sep>,</#list>));
 	        </#if>
 	    </#list>
 	}

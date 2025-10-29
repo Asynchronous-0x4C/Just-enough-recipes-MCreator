@@ -1,4 +1,5 @@
 <#include "../mcitems.ftl">
+<#include "../procedures.java.ftl">
 
 package ${package}.jei_recipes;
 
@@ -8,6 +9,8 @@ public class ${name}RecipeCategory implements IRecipeCategory<${name}Recipe> {
 
     private final IDrawable background;
     private final IDrawable icon;
+
+    private final Minecraft mc = Minecraft.getInstance();
 
     public ${name}RecipeCategory(IGuiHelper helper) {
         this.background = helper.createDrawable(TEXTURE, 0, 0, ${data.width}, ${data.height});
@@ -42,7 +45,39 @@ public class ${name}RecipeCategory implements IRecipeCategory<${name}Recipe> {
     @Override
     public void draw(${name}Recipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         this.background.draw(guiGraphics);
+        
+		<#list data.getComponentsOfType("Label") as component>
+			<#if hasProcedure(component.displayCondition)>
+				if (<@valueProvider component.displayCondition/>)
+			</#if>
+			guiGraphics.drawString(mc.font,
+				<#if hasProcedure(component.text)><@valueProvider component.text/><#else>Component.translatable("gui.${modid}.${registryname}.${component.getName()}")</#if>,
+				${component.gx(data.width)}, ${component.gy(data.height) - 28}, ${component.color.getRGB()}, false);
+		</#list>
     }
+
+    <#assign tooltips = data.getComponentsOfType("Tooltip")>
+    <#if tooltips?size != 0>
+    public void getTooltip(ITooltipBuilder tooltip, ${name}Recipe recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+		<#list tooltips as component>
+			<#assign x = component.gx(data.width)>
+			<#assign y = component.gy(data.height) - 28>
+			<#if hasProcedure(component.displayCondition)>
+				if (<@valueProvider component.displayCondition/>)
+			</#if>
+				if (mouseX > ${x} && mouseX < ${x + component.width} && mouseY > ${y} && mouseY < ${y + component.height}) {
+					<#if hasProcedure(component.text)>
+					String hoverText = <@valueProvider component.text/>;
+					if (hoverText != null) {
+						tooltip.addAll(Arrays.stream(hoverText.split("\n")).map(Component::literal).collect(Collectors.toList()));
+					}
+					<#else>
+						tooltip.add(Component.translatable("gui.${modid}.${registryname}.${component.getName()}"));
+					</#if>
+				}
+		</#list>
+	}
+	</#if>
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, ${name}Recipe recipe, IFocusGroup focuses) {
@@ -71,3 +106,14 @@ public class ${name}RecipeCategory implements IRecipeCategory<${name}Recipe> {
     }
 
 }
+
+<#macro valueProvider procedure="">
+    <@procedureCode procedure, {
+		"x": "mc.player.getX()",
+		"y": "mc.player.getY()",
+		"z": "mc.player.getZ()",
+		"world": "mc.level",
+		"entity": "mc.player",
+		"strings": "${data.enableStringList?then('recipe.strings()', 'null')}"
+	}, false/>
+</#macro>

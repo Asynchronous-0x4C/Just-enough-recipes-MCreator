@@ -9,3 +9,11 @@ templates:
     name: "@SRCROOT/@BASEPACKAGEPATH/jei_recipes/@NAMERecipe.java"
   - template: jei_recipetype/category.java.ftl
     name: "@SRCROOT/@BASEPACKAGEPATH/jei_recipes/@NAMERecipeCategory.java"
+
+localizationkeys:
+  - fromlist: data.getFixedTextLabels()
+    key: gui.@modid.@registryname.@[getName()]
+    mapto: getRenderText()
+  - fromlist: data.getFixedTooltips()
+    key: gui.@modid.@registryname.@[getName()]
+    mapto: getRenderText()

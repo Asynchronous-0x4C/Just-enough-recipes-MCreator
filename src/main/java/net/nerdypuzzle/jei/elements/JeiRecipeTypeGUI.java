@@ -23,11 +23,13 @@ import net.mcreator.util.StringUtils;
 import net.mcreator.workspace.elements.ModElement;
 import net.nerdypuzzle.jei.parts.JeiSlotList;
 import net.nerdypuzzle.jei.parts.WTextureComboBoxRenderer;
+import net.nerdypuzzle.jei.parts.gui.JeiGuiEditor;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -46,8 +48,11 @@ public class JeiRecipeTypeGUI extends ModElementGUI<JeiRecipeType> {
     private JCheckBox enableStringList;
     private final ValidationGroup page1group = new ValidationGroup();
 
+    private JeiGuiEditor guiEditor;
+
     public JeiRecipeTypeGUI(MCreator mcreator, ModElement modElement, boolean editingMode) {
         super(mcreator, modElement, editingMode);
+        guiEditor = new JeiGuiEditor(mcreator);
         title = new VTextField(24);
         craftingtables = new MCItemListField(mcreator, ElementUtil::loadBlocksAndItemsAndTags, false, false);
         textureSelector= new SearchableComboBox((String[])mcreator.getFolderManager().getTexturesList(TextureType.SCREEN).stream().map(File::getName).toArray((x$0) -> {
@@ -135,7 +140,28 @@ public class JeiRecipeTypeGUI extends ModElementGUI<JeiRecipeType> {
             craftingtables.setEnabled(enableCraftingtable.isSelected());
         }
 
+        textureSelector.addActionListener(e -> {
+            if (textureSelector.getSelectedItem() != null)
+                updateGuiImage();
+        });
+
+        width.addChangeListener(e -> {
+            if (textureSelector.getSelectedItem() != null)
+                updateGuiImage();
+        });
+
+        height.addChangeListener(e -> {
+            if (textureSelector.getSelectedItem() != null)
+                updateGuiImage();
+        });
+
+        JPanel guiEditorPanel = new JPanel(new BorderLayout(0, 5));
+        guiEditorPanel.setOpaque(false);
+        guiEditorPanel.add("Center", guiEditor);
+        guiEditorPanel.add("East", guiEditor.sidebar);
+
         addPage(L10N.t("elementgui.common.page_properties", new Object[0]), pane1).lazyValidate(() -> validatePage());
+        addPage(L10N.t("elementgui.jeirecipetype.gui_editor", new Object[0]), guiEditorPanel);
     }
 
     public void reloadDataLists() {
@@ -146,10 +172,26 @@ public class JeiRecipeTypeGUI extends ModElementGUI<JeiRecipeType> {
     protected AggregatedValidationResult validatePage() {
         if (!mcreator.getWorkspaceSettings().getDependencies().contains("jei"))
             return new AggregatedValidationResult.FAIL(L10N.t("elementgui.jei.needs_api", new Object[0]));
-        else if (textureSelector.getSelectedItem().equals("")) {
+        else if (textureSelector.getSelectedItem().isEmpty()) {
             return new AggregatedValidationResult.FAIL(L10N.t("elementgui.jeirecipetype.missing_texture", new Object[0]));
         }
         return new AggregatedValidationResult(new ValidationGroup[]{this.page1group});
+    }
+
+    public void updateGuiImage() {
+        if (!textureSelector.getSelectedItem().isEmpty() && (int) width.getValue() > 0) {
+            guiEditor.guiImage = null;
+            File textureFile = mcreator.getFolderManager().getTextureFile(textureSelector.getSelectedItem().replace(".png", ""), TextureType.SCREEN);
+            try {
+                guiEditor.spa1.setValue(width.getValue());
+                guiEditor.spa2.setValue(height.getValue());
+                guiEditor.guiImage = ImageIO.read(textureFile).getSubimage(0, 0, (int) width.getValue(), (int) height.getValue());
+                if (guiEditor.mcreator != null)
+                    guiEditor.editor.fakeEditor = guiEditor.getFakeEditor();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -170,6 +212,28 @@ public class JeiRecipeTypeGUI extends ModElementGUI<JeiRecipeType> {
         } else craftingtables.setListElements(jeiRecipe.craftingtables);
 
         craftingtables.setEnabled(enableCraftingtable.isSelected());
+
+        // Gui editor
+        guiEditor.setOpening(true);
+        guiEditor.spa1.setValue(jeiRecipe.width);
+        guiEditor.spa2.setValue(jeiRecipe.height);
+        if (jeiRecipe.components != null)
+            guiEditor.setComponentList(jeiRecipe.components);
+        guiEditor.setSlotComponentsEnabled(true);
+        updateGuiImage();
+        guiEditor.renderBgLayer.setSelected(!textureSelector.getSelectedItem().isEmpty());
+        if (jeiRecipe.gridSettings != null) {
+            guiEditor.sx.setValue(jeiRecipe.gridSettings.sx);
+            guiEditor.sy.setValue(jeiRecipe.gridSettings.sy);
+            guiEditor.ox.setValue(jeiRecipe.gridSettings.ox);
+            guiEditor.oy.setValue(jeiRecipe.gridSettings.oy);
+            guiEditor.snapOnGrid.setSelected(jeiRecipe.gridSettings.snapOnGrid);
+            if (jeiRecipe.gridSettings.snapOnGrid) {
+                guiEditor.editor.showGrid = true;
+                guiEditor.editor.repaint();
+            }
+        }
+        guiEditor.setOpening(false);
     }
 
     public JeiRecipeType getElementFromGUI() {
@@ -184,6 +248,15 @@ public class JeiRecipeTypeGUI extends ModElementGUI<JeiRecipeType> {
         recipe.slotList = slotList.getEntries();
         recipe.width = (int) width.getValue();
         recipe.height = (int) height.getValue();
+
+        // Gui editor
+        recipe.components = guiEditor.getComponentList();
+        recipe.gridSettings.sx = (int) guiEditor.sx.getValue();
+        recipe.gridSettings.sy = (int) guiEditor.sy.getValue();
+        recipe.gridSettings.ox = (int) guiEditor.ox.getValue();
+        recipe.gridSettings.oy = (int) guiEditor.oy.getValue();
+        recipe.gridSettings.snapOnGrid = guiEditor.snapOnGrid.isSelected();
+
         return recipe;
     }
 
