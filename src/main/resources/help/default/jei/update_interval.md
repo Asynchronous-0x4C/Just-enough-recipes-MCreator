@@ -1,0 +1,1 @@
+This determines how many ticks it takes to move to the next sprite.

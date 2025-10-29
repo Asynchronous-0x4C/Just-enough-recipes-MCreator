@@ -179,7 +179,7 @@ public class JeiRecipeTypeGUI extends ModElementGUI<JeiRecipeType> {
     }
 
     public void updateGuiImage() {
-        if (!textureSelector.getSelectedItem().isEmpty() && (int) width.getValue() > 0) {
+        if (!textureSelector.getSelectedItem().isEmpty() && (int) width.getValue() > 0 && (int) height.getValue() > 0) {
             guiEditor.guiImage = null;
             File textureFile = mcreator.getFolderManager().getTextureFile(textureSelector.getSelectedItem().replace(".png", ""), TextureType.SCREEN);
             try {

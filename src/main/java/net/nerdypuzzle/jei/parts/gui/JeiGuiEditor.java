@@ -27,8 +27,7 @@ import net.mcreator.util.ArrayListListModel;
 import net.mcreator.util.GSONClone;
 import net.mcreator.util.image.IconUtils;
 import net.mcreator.util.image.ImageUtils;
-import net.nerdypuzzle.jei.parts.gui.components.JeiLabelDialog;
-import net.nerdypuzzle.jei.parts.gui.components.JeiTooltipDialog;
+import net.nerdypuzzle.jei.parts.gui.components.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,9 +42,9 @@ public class JeiGuiEditor extends JPanel {
     //@formatter:off
     public static final List<WYSIWYGComponentRegistration<?>> COMPONENT_REGISTRY = new ArrayList<>() {{
         add(new WYSIWYGComponentRegistration<>("text_label", "addlabel", true, Label.class, JeiLabelDialog.class));
-        //add(new WYSIWYGComponentRegistration<>("sprite", "addsprite", true, Sprite.class, SpriteDialog.class));
+        add(new WYSIWYGComponentRegistration<>("sprite", "addsprite", true, JeiSprite.class, JeiSpriteDialog.class));
         add(new WYSIWYGComponentRegistration<>("tooltip", "addtooltip", false, Tooltip.class, JeiTooltipDialog.class));
-        //add(new WYSIWYGComponentRegistration<>("entity_model", "addmodel", true, EntityModel.class, EntityModelDialog.class));
+        add(new WYSIWYGComponentRegistration<>("entity_model", "addmodel", true, EntityModel.class, JeiEntityModelDialog.class));
     }};
     //@formatter:on
 

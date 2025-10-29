@@ -45,6 +45,21 @@ public class ${name}RecipeCategory implements IRecipeCategory<${name}Recipe> {
     @Override
     public void draw(${name}Recipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         this.background.draw(guiGraphics);
+
+		<#list data.getComponentsOfType("JeiSprite") as component>
+			<#if hasProcedure(component.displayCondition)>if (<@valueProvider component.displayCondition/>) {</#if>
+				guiGraphics.blit(RenderPipelines.GUI_TEXTURED, ResourceLocation.parse("${modid}:textures/screens/${component.sprite}"),
+					${component.gx(data.width)}, ${component.gy(data.height) - 32},
+					<#if (component.getTextureWidth(w.getWorkspace()) > component.getTextureHeight(w.getWorkspace()))>
+						<@getSpriteByIndex component "width"/>, 0
+					<#else>
+						0, <@getSpriteByIndex component "height"/>
+					</#if>,
+					${component.getWidth(w.getWorkspace())}, ${component.getHeight(w.getWorkspace())},
+					${component.getTextureWidth(w.getWorkspace())}, ${component.getTextureHeight(w.getWorkspace())});
+			<#if hasProcedure(component.displayCondition)>}</#if>
+		</#list>
+
 		<#list data.getComponentsOfType("Label") as component>
 			<#if hasProcedure(component.displayCondition)>
 				if (<@valueProvider component.displayCondition/>)
@@ -52,6 +67,27 @@ public class ${name}RecipeCategory implements IRecipeCategory<${name}Recipe> {
 			guiGraphics.drawString(mc.font,
 				<#if hasProcedure(component.text)><@valueProvider component.text/><#else>Component.translatable("gui.${modid}.${registryname}.${component.getName()}")</#if>,
 				${component.gx(data.width)}, ${component.gy(data.height) - 28}, ${component.color.getRGB()}, false);
+		</#list>
+
+		<#list data.getComponentsOfType("EntityModel") as component>
+			<#assign followMouse = component.followMouseMovement>
+			<#assign x = component.gx(data.width)>
+			<#assign y = component.gy(data.height) - 28>
+			if (<@valueProvider component.entityModel/> instanceof LivingEntity livingEntity) {
+				<#if hasProcedure(component.displayCondition)>
+					if (<@valueProvider component.displayCondition/>)
+				</#if>
+				var poseStack = guiGraphics.pose();
+                int leftPos = (int) poseStack.m20;
+                int topPos = (int) poseStack.m21;
+				InventoryScreen.renderEntityInInventoryFollowsAngle(guiGraphics,
+					leftPos + ${x + (10 - 1000)}, topPos + ${y + (20 - 1000)},
+					leftPos + ${x + (10 + 1000)}, topPos + ${y + (20 + 1000)},
+					${component.scale}, -livingEntity.getBbHeight() / (2.0f * livingEntity.getScale()),
+					${component.rotationX / 20.0}f <#if followMouse> + (float) Math.atan((${x + 10} - mouseX) / 40.0)</#if>,
+					<#if followMouse>(float) Math.atan((${y -28} - mouseY) / 40.0)<#else>0</#if>, livingEntity
+				);
+			}
 		</#list>
     }
 
@@ -115,4 +151,12 @@ public class ${name}RecipeCategory implements IRecipeCategory<${name}Recipe> {
 		"entity": "mc.player",
 		"strings": "${data.enableStringList?then('recipe.strings()', 'null')}"
 	}, false/>
+</#macro>
+
+<#macro getSpriteByIndex component dim>
+	<#if dim == "width">
+		${component.getWidth(w.getWorkspace())} * ((mc.player.tickCount / ${component.updateInterval}) % ${component.spritesCount}) - 1
+	<#else>
+		${component.getHeight(w.getWorkspace())} * ((mc.player.tickCount / ${component.updateInterval}) % ${component.spritesCount}) - 1
+    </#if>
 </#macro>
