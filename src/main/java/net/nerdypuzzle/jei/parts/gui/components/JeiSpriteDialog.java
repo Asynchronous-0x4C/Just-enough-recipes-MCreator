@@ -37,13 +37,10 @@ public class JeiSpriteDialog extends AbstractWYSIWYGDialog<JeiSprite> {
         SpinnerNumberModel spritesCountModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
         JSpinner spritesCount = new JSpinner(spritesCountModel);
 
-        SpinnerNumberModel model = new SpinnerNumberModel(0, 0, (int) spritesCount.getValue() - 1, 1);
-        JSpinner spinner = new JSpinner(model);
-
         AbstractProcedureSelector.ReloadContext context = AbstractProcedureSelector.ReloadContext.create(
                 editor.mcreator.getWorkspace());
 
-        SpinnerNumberModel updateIntervalModel = new SpinnerNumberModel(10, 1, 20, 1);
+        SpinnerNumberModel updateIntervalModel = new SpinnerNumberModel(10, 1, Integer.MAX_VALUE, 1);
         JSpinner updateInterval = new JSpinner(updateIntervalModel);
 
         JPanel opts = new JPanel(new GridLayout(2, 2, 2, 2));
@@ -69,17 +66,6 @@ public class JeiSpriteDialog extends AbstractWYSIWYGDialog<JeiSprite> {
                 Dependency.fromString("x:number/y:number/z:number/world:world/entity:entity/strings:stringlist"));
         displayCondition.refreshList(context);
 
-        final int[] previousSpritesCount = { (int) spritesCount.getValue() };
-        spritesCount.addChangeListener(e -> {
-            int currentSpritesCount = (int) spritesCount.getValue();
-
-            model.setMaximum(currentSpritesCount - 1);
-            if (previousSpritesCount[0] > currentSpritesCount
-                    && model.getNumber().intValue() == previousSpritesCount[0] - 1)
-                model.setValue(model.getNumber().intValue() - 1);
-            previousSpritesCount[0] = currentSpritesCount;
-        });
-
         textureSelector.getComboBox().addActionListener(e -> {
             if (textureSelector.getTexture() != null) {
                 ImageIcon selectedTexture = textureSelector.getTexture().getTextureIcon(editor.mcreator.getWorkspace());
@@ -88,9 +74,6 @@ public class JeiSpriteDialog extends AbstractWYSIWYGDialog<JeiSprite> {
                 spritesCountModel.setMaximum(maximum);
                 if (maximum < spritesCountModel.getNumber().intValue())
                     spritesCountModel.setValue(maximum);
-
-                if (model.getNumber().intValue() > maximum)
-                    model.setValue(maximum - 1);
             }
         });
 
